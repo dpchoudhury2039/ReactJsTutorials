@@ -1,25 +1,54 @@
-import logo from './logo.svg';
+import React, {Component} from 'react';
 import './App.css';
+import { render } from '@testing-library/react';
 
-function App() {
+import {CardList} from './components/card-list/card-list.component';
+import { SearchBox } from './components/search-box/search-box.component';
+import { scryRenderedComponentsWithType } from 'react-dom/test-utils';
+
+class App extends Component{
+  constructor(){
+    super();
+    this.state = {
+       monsters: [],
+       searchField: ''
+      };
+}
+
+componentDidMount(){
+  fetch('monster.json', {
+    headers : { 
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+     }
+
+  })
+  .then( Response => Response.json())
+  .then(users => this.setState({monsters: users}));
+}
+
+handleChange = e => {
+  this.setState({ searchField: e.target.value });
+}
+
+render() {
+  const { monsters, searchField } = this.state;
+
+  const filteredMonsters = monsters.filter(monster => 
+    monster.name.toLowerCase().includes(searchField.toLocaleLowerCase())
+    )
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1> Bhoot </h1>
+      <SearchBox
+        placeholder='Search Monster'
+        handleChange={this.handleChange}
+        //handleChange={e => this.setState({searchField: e.target.value})}
+
+      />
+      <CardList monsters={filteredMonsters}/>
     </div>
   );
 }
-
+}
 export default App;
